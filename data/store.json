@@ -1,0 +1,49 @@
+{
+  "listings": [
+    {
+      "title": "Fresh Tomatoes",
+      "subtitle": "Fresh tomatoes harvested today and ready for local delivery.",
+      "price": "₹32 / kg",
+      "stock": "20 kg",
+      "tag": "Just added"
+    },
+    {
+      "title": "Fresh Tomatoes",
+      "subtitle": "Farm produce from Nashik cluster",
+      "price": "₹32 / kg",
+      "stock": "20 kg ready",
+      "tag": "Fast moving"
+    },
+    {
+      "title": "Handmade Bamboo Baskets",
+      "subtitle": "Craft collective, 100% handmade",
+      "price": "₹180 / piece",
+      "stock": "12 in stock",
+      "tag": "Festival demand"
+    },
+    {
+      "title": "Homemade Mango Pickle",
+      "subtitle": "Small-batch home kitchen product",
+      "price": "₹140 / jar",
+      "stock": "30 jars ready",
+      "tag": "Repeat buyers"
+    }
+  ],
+  "orders": [
+    {
+      "buyer": "Village Fresh Mart",
+      "detail": "Need 10 kg tomatoes for tomorrow morning delivery.",
+      "status": "Awaiting voice reply"
+    },
+    {
+      "buyer": "Anita General Store",
+      "detail": "Asked if bamboo baskets are available in bulk quantity.",
+      "status": "New buyer question"
+    },
+    {
+      "buyer": "Ramesh Caterers",
+      "detail": "Requested a price confirmation for 15 pickle jars.",
+      "status": "Ready to confirm"
+    }
+  ]
+}
