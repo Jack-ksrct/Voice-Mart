@@ -1,4 +1,4 @@
-# Voice Rural
+# Voice Mart
 
 Voice Rural is a voice-first marketplace prototype for rural sellers in India. The backend now runs on FastAPI and uses Sarvam for STT, command generation, and TTS.
 
