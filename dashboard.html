@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Voice Mart | Dashboard</title>
+    <meta
+      name="description"
+      content="Voice Mart seller and buyer dashboard — manage listings, inventory, orders, and audits using voice."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Sora:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <nav class="topbar">
+        <div class="brand">
+          <div class="brand-mark">VM</div>
+          <div>
+            <p class="eyebrow">Inclusive Commerce</p>
+            <h1>Voice Mart</h1>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <button class="secondary-button" id="topLoginButton" type="button">Login</button>
+          <button class="chip" type="button">Offline Sync Ready</button>
+        </div>
+      </nav>
+
+      <header class="hero seller-only" data-view="seller">
+        <section class="hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow">Voice-Driven Marketplace for Rural Sellers</p>
+            <h2>Run your business by speaking.</h2>
+            <p class="hero-text">
+              Voice Rural now covers listing creation, inventory alerts, product image onboarding,
+              buyer purchases, contact details, and spoken sales auditing in one rural-first flow.
+            </p>
+            <div class="hero-actions">
+              <button class="primary-button" id="startVoiceButton" type="button">
+                Start Voice Listing
+              </button>
+              <button class="secondary-button" id="demoCommandButton" type="button">
+                Play Demo Prompt
+              </button>
+            </div>
+            <div class="hero-metrics">
+              <article>
+                <strong>AI</strong>
+                <span>command generation + same-language spoken reply</span>
+              </article>
+              <article>
+                <strong>10+</strong>
+                <span>Indian voice modes with mixed-English handling</span>
+              </article>
+              <article>
+                <strong>Hands-Free</strong>
+                <span>inventory alerts, buyer actions, and spoken business summaries</span>
+              </article>
+            </div>
+          </div>
+
+          <div class="voice-console">
+            <div class="console-card">
+              <div class="console-header">
+                <div>
+                  <p class="eyebrow">Voice Assistant</p>
+                  <h3>Seller Command Center</h3>
+                </div>
+                <span class="status-pill" id="assistantState">Ready</span>
+              </div>
+
+              <div class="language-banner">
+                <span id="languageBadge">English</span>
+                <p id="languageHint">Switch between Indian languages or use auto-detect for STT.</p>
+              </div>
+
+              <div class="mic-orbit" id="micOrbit" aria-hidden="true">
+                <button class="mic-button" id="listenButton" aria-label="Start listening" type="button">
+                  <span id="listenButtonLabel">Tap to Speak</span>
+                </button>
+              </div>
+
+              <div class="transcript-panel">
+                <div>
+                  <p class="panel-label">Live transcript</p>
+                  <p class="transcript" id="transcriptText">
+                    Say: "Add 20 kilos of tomatoes for 32 rupees per kilo"
+                  </p>
+                </div>
+                <div>
+                  <p class="panel-label">Generated command</p>
+                  <p class="generated-command" id="generatedCommandText">
+                    Waiting for a spoken marketplace command.
+                  </p>
+                </div>
+                <div>
+                  <p class="panel-label">Assistant response</p>
+                  <p class="assistant-reply" id="assistantReply">
+                    I can help create listings, update stock, check orders, trigger alerts, and answer buyers using your voice.
+                  </p>
+                </div>
+              </div>
+
+              <div class="suggested-commands" id="suggestedCommands"></div>
+            </div>
+          </div>
+        </section>
+      </header>
+
+      <main>
+        <section class="section-grid">
+          <article class="story-card spotlight auth-card">
+            <p class="eyebrow">Account status</p>
+            <h3>Sign in from the top Login button</h3>
+            <p class="auth-copy">Your seller or buyer account stays active across sessions. Use the dedicated login page to choose your role and login method.</p>
+            <div class="account-summary">
+              <span class="profile-chip" id="profileSummary">No active session</span>
+              <p id="accountHint">Click Login above to sign in as seller or buyer.</p>
+            </div>
+          </article>
+
+          <section class="workspace buyer-only hidden" id="buyerDashboardSection" data-view="buyer">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Buyer Dashboard</p>
+                <h3>Browse current seller listings in your area</h3>
+              </div>
+            </div>
+            <div class="workspace-grid">
+              <article class="dashboard-card">
+                <div class="card-heading">
+                  <div>
+                    <p class="panel-label">Local listings</p>
+                    <h4>Latest products from nearby sellers</h4>
+                  </div>
+                </div>
+                <div class="buyer-listings" id="buyerListingCards">
+                  <p class="muted-note">Loading local seller listings...</p>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <article class="story-card stack-card seller-only">
+            <p class="eyebrow">Business Snapshot</p>
+            <h3>Localized voice-based auditing</h3>
+            <div class="audit-metrics" id="auditMetrics"></div>
+            <form class="audit-form" id="auditForm">
+              <label>
+                Ask with text or voice style
+                <input id="auditQuery" type="text" value="How much did I sell today?" />
+              </label>
+              <div class="form-actions">
+                <button class="secondary-button" id="runAuditButton" type="submit">Run Audit</button>
+                <button class="secondary-button" id="speakSummaryButton" type="button">Speak Today's Summary</button>
+              </div>
+            </form>
+            <p class="audit-reply" id="auditReply">Your spoken financial summary will appear here.</p>
+          </article>
+        </section>
+
+        <section class="workspace seller-only" data-view="seller" id="sellerWorkspaceSection">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Seller Workspace</p>
+              <h3>Manage inventory, images, and buyer activity without typing</h3>
+            </div>
+          </div>
+
+          <div class="workspace-grid">
+            <article class="dashboard-card listing-form">
+              <div class="card-heading">
+                <div>
+                  <p class="panel-label">Quick Listing</p>
+                  <h4>Voice-filled product form</h4>
+                </div>
+                <span class="status-dot">Auto-Saved</span>
+              </div>
+
+              <div class="image-upload-box">
+                <div class="upload-preview" id="imagePreviewBox">
+                  <span id="imagePreviewPlaceholder">No product image yet</span>
+                  <img id="imagePreview" alt="Product preview" hidden />
+                </div>
+                <label class="upload-label">
+                  Product Image
+                  <input id="imageUploadInput" type="file" accept="image/*" />
+                </label>
+                <p class="upload-note" id="imageUploadNote">
+                  Upload a product photo, then use voice to describe the name, price, and category.
+                </p>
+              </div>
+
+              <form id="listingForm">
+                <label>
+                  Product Name
+                  <input id="productName" name="productName" type="text" value="Fresh Tomatoes" />
+                </label>
+                <label>
+                  Category
+                  <select id="productCategory" name="productCategory">
+                    <option>Vegetables</option>
+                    <option>Handicrafts</option>
+                    <option>Dairy</option>
+                    <option>Home Foods</option>
+                  </select>
+                </label>
+                <div class="two-column">
+                  <label>
+                    Price
+                    <input id="productPrice" name="productPrice" type="text" value="₹32 / kg" />
+                  </label>
+                  <label>
+                    Stock
+                    <input id="productStock" name="productStock" type="text" value="20 kg" />
+                  </label>
+                </div>
+                <div class="two-column">
+                  <label>
+                    Contact Phone
+                    <input id="contactPhone" name="contactPhone" type="text" value="+91 98765 43210" />
+                  </label>
+                  <label>
+                    Low Stock Alert Threshold
+                    <input id="minStockAlert" name="minStockAlert" type="number" value="8" min="1" />
+                  </label>
+                </div>
+                <label>
+                  Spoken Description
+                  <textarea id="productDescription" name="productDescription" rows="4">Fresh farm tomatoes harvested today. Ideal for local buyers and kirana shops.</textarea>
+                </label>
+                <div class="form-actions">
+                  <button type="button" class="primary-button" id="saveListingButton">
+                    Save Listing
+                  </button>
+                  <button type="button" class="secondary-button" id="voiceFillButton">
+                    Fill via Voice
+                  </button>
+                </div>
+              </form>
+            </article>
+
+            <article class="dashboard-card">
+              <div class="card-heading">
+                <div>
+                  <p class="panel-label">Inventory Alerts</p>
+                  <h4>Background low-stock monitoring</h4>
+                </div>
+                <span class="mini-pill alert" id="alertCountBadge">0 Alerts</span>
+              </div>
+              <div class="alerts-list" id="alertsList"></div>
+            </article>
+
+            <article class="dashboard-card">
+              <div class="card-heading">
+                <div>
+                  <p class="panel-label">Buyer Activity</p>
+                  <h4>Pending voice responses</h4>
+                </div>
+                <span class="mini-pill alert">2 New</span>
+              </div>
+              <div class="orders" id="ordersList"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="workspace buyer-only hidden">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Marketplace</p>
+              <h3>Buyer-friendly listings with contact and buy actions</h3>
+            </div>
+          </div>
+          <div class="marketplace-grid" id="listingCards"></div>
+        </section>
+      </main>
+    </div>
+
+    <!--
+      Language select was part of old topbar — kept as hidden element
+      so app.js DOM queries don't throw. It is not exposed to the user.
+    -->
+    <select id="languageSelect" class="hidden" aria-hidden="true">
+      <option value="en-IN">English</option>
+    </select>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

@@ -16,12 +16,32 @@ const languageSelect = document.getElementById("languageSelect");
 const languageBadge = document.getElementById("languageBadge");
 const languageHint = document.getElementById("languageHint");
 const suggestedCommands = document.getElementById("suggestedCommands");
+const alertsList = document.getElementById("alertsList");
+const alertCountBadge = document.getElementById("alertCountBadge");
+const auditMetrics = document.getElementById("auditMetrics");
+const auditReply = document.getElementById("auditReply");
+const auditForm = document.getElementById("auditForm");
+const auditQuery = document.getElementById("auditQuery");
+const profileSummary = document.getElementById("profileSummary");
+const accountHint = document.getElementById("accountHint");
+const topLoginButton = document.getElementById("topLoginButton");
+const landingSection = document.getElementById("landingSection");
+const dashboardContent = document.getElementById("dashboardContent");
+const landingLoginButton = document.getElementById("landingLoginButton");
+const buyerDashboardSection = document.getElementById("buyerDashboardSection");
+const buyerListingCards = document.getElementById("buyerListingCards");
+const imageUploadInput = document.getElementById("imageUploadInput");
+const imagePreview = document.getElementById("imagePreview");
+const imagePreviewPlaceholder = document.getElementById("imagePreviewPlaceholder");
+const imageUploadNote = document.getElementById("imageUploadNote");
 
 const productName = document.getElementById("productName");
 const productCategory = document.getElementById("productCategory");
 const productPrice = document.getElementById("productPrice");
 const productStock = document.getElementById("productStock");
 const productDescription = document.getElementById("productDescription");
+const contactPhone = document.getElementById("contactPhone");
+const minStockAlert = document.getElementById("minStockAlert");
 
 const baseLanguageContent = {
   auto: {
@@ -33,7 +53,7 @@ const baseLanguageContent = {
     commands: [
       { label: "List Product", value: "10 kg vendakkai add panna one kilo 10 rupees" },
       { label: "Check Orders", value: "today order check pannanum" },
-      { label: "Update Stock", value: "baskets stock update pannunga minus 5" },
+      { label: "Low Stock", value: "Show my low stock alerts" },
     ],
   },
   "en-IN": {
@@ -45,7 +65,7 @@ const baseLanguageContent = {
     commands: [
       { label: "List Product", value: "Add 20 kilos of tomatoes for 32 rupees per kilo" },
       { label: "Check Orders", value: "Show pending orders" },
-      { label: "Update Stock", value: "Reduce basket stock by 5" },
+      { label: "Sales Audit", value: "How much did I sell today?" },
     ],
   },
   "hi-IN": {
@@ -57,7 +77,7 @@ const baseLanguageContent = {
     commands: [
       { label: "प्रोडक्ट जोड़ें", value: "20 kilo tamatar 32 rupaye per kilo mein jodo" },
       { label: "ऑर्डर देखें", value: "Pending order dikhao" },
-      { label: "स्टॉक अपडेट", value: "Tokri stock 5 kam karo" },
+      { label: "सेल्स ऑडिट", value: "Aaj kitna becha?" },
     ],
   },
   "ta-IN": {
@@ -69,7 +89,7 @@ const baseLanguageContent = {
     commands: [
       { label: "பொருள் சேர்", value: "10 kilo vendakkai oru kilo 10 rupai serkkavum" },
       { label: "ஆர்டர் பார்", value: "Pending orders kaattu" },
-      { label: "ஸ்டாக் குறை", value: "Stock 5 kurai" },
+      { label: "விற்பனை சுருக்கம்", value: "Innaiku evlo sale aachu?" },
     ],
   },
 };
@@ -77,7 +97,7 @@ const baseLanguageContent = {
 const genericCommands = [
   { label: "List Product", value: "Add 10 kilos of fresh product at 30 rupees per kilo" },
   { label: "Check Orders", value: "Show pending orders" },
-  { label: "Update Stock", value: "Update stock minus 5" },
+  { label: "Sales Audit", value: "What is my total profit?" },
 ];
 
 const categoryMap = {
@@ -100,6 +120,11 @@ const state = {
   },
   currentLanguage: "en-IN",
   lastDetectedLanguage: "en-IN",
+  authMethod: "phone",
+  authRole: "seller",
+  authSession: null,
+  pendingOtp: "",
+  otpPhone: "",
   isListening: false,
   isBusy: false,
   audioChunks: [],
@@ -107,7 +132,14 @@ const state = {
   activeAudio: null,
   listings: [],
   orders: [],
+  alerts: [],
+  profile: null,
+  metrics: null,
+  alertSpeechHistory: new Set(),
+  uploadedImageData: "",
 };
+
+let dashboardPollTimer = 0;
 
 function getLanguageMeta(code) {
   return state.config.availableLanguages.find((item) => item.code === code);
@@ -139,49 +171,21 @@ function setBusy(isBusy) {
   saveListingButton.disabled = disable;
   speakSummaryButton.disabled = disable;
   languageSelect.disabled = disable;
+  auditQuery.disabled = disable;
+  imageUploadInput.disabled = disable;
 }
 
-function renderListings() {
-  listingCards.innerHTML = state.listings
-    .map(
-      (item) => `
-        <article class="listing-item fade-in">
-          <header>
-            <div>
-              <h5>${item.title}</h5>
-              <p>${item.subtitle}</p>
-            </div>
-            <span class="mini-pill">${item.tag}</span>
-          </header>
-          <div class="listing-meta">
-            <span>${item.price}</span>
-            <span>${item.stock}</span>
-          </div>
-        </article>
-      `
-    )
-    .join("");
+function setAssistantState(label, listening = false) {
+  assistantState.textContent = label;
+  state.isListening = listening;
+  listenButtonLabel.textContent = listening ? "Tap to Stop" : "Tap to Speak";
+  micOrbit.classList.toggle("active", listening);
 }
 
-function renderOrders() {
-  ordersList.innerHTML = state.orders
-    .map(
-      (order) => `
-        <article class="order-item fade-in">
-          <header>
-            <div>
-              <h5>${order.buyer}</h5>
-              <p>${order.detail}</p>
-            </div>
-          </header>
-          <div class="order-meta">
-            <span>${order.status}</span>
-            <span>Tap to answer by voice</span>
-          </div>
-        </article>
-      `
-    )
-    .join("");
+function getSpeechLanguage() {
+  return state.currentLanguage === "auto"
+    ? state.lastDetectedLanguage || state.config.defaultLanguage
+    : state.currentLanguage;
 }
 
 function renderLanguageOptions() {
@@ -204,17 +208,397 @@ function renderSuggestedCommands() {
   });
 }
 
-function setAssistantState(label, listening = false) {
-  assistantState.textContent = label;
-  state.isListening = listening;
-  listenButtonLabel.textContent = listening ? "Tap to Stop" : "Tap to Speak";
-  micOrbit.classList.toggle("active", listening);
+function renderProfile() {
+  const activeProfile = state.authSession?.profile || state.profile;
+  if (!state.authSession) {
+    profileSummary.textContent = "Signed out";
+    if (accountHint) {
+      accountHint.textContent = "Click Login above to sign in as buyer or seller.";
+    }
+    if (contactPhone && state.profile) {
+      contactPhone.value = state.profile.phone || contactPhone.value;
+    }
+    updateTopLoginButton();
+    showUserView();
+    return;
+  }
+  profileSummary.textContent = `${state.authSession.role.toUpperCase()}: ${activeProfile.name} • ${activeProfile.village}`;
+  if (accountHint) {
+    accountHint.textContent = `You are signed in as ${state.authSession.role}. Return to the dashboard or logout from the top button.`;
+  }
+  if (contactPhone) {
+    contactPhone.value = activeProfile.phone || contactPhone.value;
+  }
+  updateTopLoginButton();
+  showUserView();
 }
 
-function getSpeechLanguage() {
-  return state.currentLanguage === "auto"
-    ? state.lastDetectedLanguage || state.config.defaultLanguage
-    : state.currentLanguage;
+function showUserView() {
+  const loggedIn = Boolean(state.authSession);
+  if (landingSection) {
+    landingSection.classList.toggle("hidden", loggedIn);
+  }
+  if (dashboardContent) {
+    dashboardContent.classList.toggle("hidden", !loggedIn);
+  }
+
+  const role = state.authSession?.role || state.profile?.role || "seller";
+  document.querySelectorAll(".seller-only").forEach((element) => {
+    element.classList.toggle("hidden", !loggedIn || role !== "seller");
+  });
+  document.querySelectorAll(".buyer-only").forEach((element) => {
+    element.classList.toggle("hidden", !loggedIn || role !== "buyer");
+  });
+
+  if (loggedIn && role === "buyer") {
+    renderBuyerListings();
+  }
+}
+
+function loadAuthSession() {
+  const rawSession = window.localStorage.getItem("voiceRuralAuthSession");
+  if (!rawSession) {
+    state.authSession = null;
+    return;
+  }
+  try {
+    state.authSession = JSON.parse(rawSession);
+    state.authRole = state.authSession.role || state.authRole;
+  } catch (_error) {
+    state.authSession = null;
+  }
+}
+
+function saveAuthSession(session) {
+  window.localStorage.setItem("voiceRuralAuthSession", JSON.stringify(session));
+  state.authSession = session;
+  state.authRole = session.role || state.authRole;
+}
+
+function clearAuthSession() {
+  window.localStorage.removeItem("voiceRuralAuthSession");
+  state.authSession = null;
+}
+
+function updateTopLoginButton() {
+  if (!topLoginButton) {
+    return;
+  }
+  if (state.authSession) {
+    topLoginButton.textContent = "Logout";
+    topLoginButton.dataset.state = "logout";
+  } else {
+    topLoginButton.textContent = "Login";
+    topLoginButton.dataset.state = "login";
+  }
+}
+
+function handleTopLoginButton() {
+  if (!topLoginButton) {
+    return;
+  }
+  if (topLoginButton.dataset.state === "logout") {
+    clearAuthSession();
+    // Return to landing page — the dashboard requires an active session.
+    window.location.href = "index.html";
+    return;
+  }
+  window.location.href = "login.html";
+}
+
+function initializeAuthState() {
+  loadAuthSession();
+  updateTopLoginButton();
+}
+
+function showAuthRole(role) {
+  state.authRole = role;
+  authRoleButtons.forEach((button) => button.classList.toggle("active", button.dataset.role === role));
+  authRoleCopy.textContent =
+    role === "buyer"
+      ? "Access buyer tools with phone OTP or Google sign-in to browse seller listings and place orders."
+      : "Use your mobile number with OTP or continue with Google to access your voice-first seller dashboard.";
+  const nameLabel = document.getElementById("loginNameLabel");
+  if (nameLabel) {
+    nameLabel.textContent = role === "buyer" ? "Buyer name" : "Seller name";
+  }
+}
+
+function showAuthMethod(method) {
+  state.authMethod = method;
+  phoneAuthPanel.classList.toggle("hidden", method !== "phone");
+  googleAuthPanel.classList.toggle("hidden", method !== "google");
+  authMethodButtons.forEach((button) => button.classList.toggle("active", button.dataset.method === method));
+}
+
+function toggleOtpFields(show) {
+  const otpLabel = loginOtp.closest("label");
+  if (otpLabel) {
+    otpLabel.classList.toggle("hidden", !show);
+  }
+  verifyOtpButton.closest(".otp-actions").classList.toggle("hidden", !show);
+}
+
+function getSavedLoginState() {
+  return window.localStorage.getItem("voiceRuralLoggedIn") === "true";
+}
+
+function saveLoginState() {
+  window.localStorage.setItem("voiceRuralLoggedIn", "true");
+}
+
+function clearLoginState() {
+  window.localStorage.removeItem("voiceRuralLoggedIn");
+}
+
+async function loginWithPayload(payload) {
+  const profile = await fetchJson("/api/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  state.profile = profile;
+  renderProfile();
+  assistantReply.textContent = `${profile.name} is now logged in.`;
+  saveLoginState();
+  await Promise.all([loadMarketplaceData(), loadDashboard()]);
+}
+
+function normalizePhone(phone) {
+  return phone.replace(/[^\d+]/g, "");
+}
+
+function validatePhoneNumber(phone) {
+  return /^\+?\d{10,15}$/.test(normalizePhone(phone));
+}
+
+async function sendPhoneOtp() {
+  const phone = normalizePhone(loginPhone.value.trim());
+  if (!validatePhoneNumber(phone)) {
+    assistantReply.textContent = "Enter a valid phone number before sending OTP.";
+    return;
+  }
+
+  setBusy(true);
+  try {
+    state.pendingOtp = String(Math.floor(100000 + Math.random() * 900000));
+    state.otpPhone = phone;
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    otpStatus.textContent = `OTP sent to ${phone}. Enter ${state.pendingOtp} to continue.`;
+    toggleOtpFields(true);
+    loginOtp.focus();
+  } catch (error) {
+    otpStatus.textContent = `OTP failed to send: ${error.message}`;
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function verifyPhoneOtp() {
+  const code = loginOtp.value.trim();
+  if (!code || code !== state.pendingOtp) {
+    assistantReply.textContent = "The OTP does not match. Please try again.";
+    return;
+  }
+  const payload = {
+    name: loginName.value.trim() || (state.authRole === "buyer" ? "Buyer" : "Seller"),
+    phone: normalizePhone(loginPhone.value.trim()),
+    village: loginVillage.value.trim() || "Village Cluster",
+    role: state.authRole,
+  };
+  await loginWithPayload(payload);
+  otpStatus.textContent = "Phone verified successfully.";
+  toggleOtpFields(false);
+  loginOtp.value = "";
+  state.pendingOtp = "";
+}
+
+async function handleGoogleLogin() {
+  setBusy(true);
+  assistantReply.textContent = "Connecting to Google sign-in...";
+  try {
+    await new Promise((resolve) => setTimeout(resolve, 900));
+    const payload = {
+      name: loginName.value.trim() || (state.authRole === "buyer" ? "Buyer" : "Priya Sharma"),
+      phone: validatePhoneNumber(loginPhone.value.trim()) ? normalizePhone(loginPhone.value.trim()) : "+91 98765 43210",
+      village: loginVillage.value.trim() || "Nashik Cluster",
+      role: state.authRole,
+    };
+    await loginWithPayload(payload);
+  } catch (error) {
+    assistantReply.textContent = `Google sign-in failed: ${error.message}`;
+  } finally {
+    setBusy(false);
+  }
+}
+
+function initializeLoginView() {
+  showAuthRole(state.authRole);
+  showAuthMethod(state.authMethod);
+  if (getSavedLoginState()) {
+    otpStatus.textContent = "You are already signed in. Use phone or Google to refresh your profile.";
+  }
+}
+
+function preventLoginBypass() {
+  if (state.pendingOtp && loginOtp.value.trim() !== state.pendingOtp) {
+    assistantReply.textContent = "Please verify the OTP before signing in.";
+    return false;
+  }
+  return true;
+}
+
+function login(event) {
+  event.preventDefault();
+  if (state.pendingOtp) {
+    return void verifyPhoneOtp();
+  }
+  if (!preventLoginBypass()) {
+    return;
+  }
+  const payload = {
+    name: loginName.value.trim() || (state.authRole === "buyer" ? "Buyer" : "Seller"),
+    phone: normalizePhone(loginPhone.value.trim()),
+    village: loginVillage.value.trim() || "Village Cluster",
+    role: state.authRole,
+  };
+  void loginWithPayload(payload);
+}
+
+function renderMetrics() {
+  if (!state.metrics) {
+    auditMetrics.innerHTML = "";
+    return;
+  }
+
+  auditMetrics.innerHTML = `
+    <article class="metric-pill">
+      <strong>₹${state.metrics.total_revenue}</strong>
+      <span>Revenue</span>
+    </article>
+    <article class="metric-pill">
+      <strong>₹${state.metrics.total_profit}</strong>
+      <span>Profit</span>
+    </article>
+    <article class="metric-pill">
+      <strong>${state.metrics.total_orders}</strong>
+      <span>Orders</span>
+    </article>
+  `;
+}
+
+function renderAlerts() {
+  alertCountBadge.textContent = `${state.alerts.length} Alerts`;
+  if (!state.alerts.length) {
+    alertsList.innerHTML = `<article class="alert-item"><h5>All good</h5><p>No low-stock alerts right now.</p></article>`;
+    return;
+  }
+
+  alertsList.innerHTML = state.alerts
+    .map(
+      (alert) => `
+        <article class="alert-item ${alert.severity}">
+          <h5>${alert.title}</h5>
+          <p>${alert.message}</p>
+          <span>Threshold: ${alert.threshold}</span>
+        </article>
+      `
+    )
+    .join("");
+}
+
+function renderOrders() {
+  ordersList.innerHTML = state.orders
+    .map(
+      (order) => `
+        <article class="order-item fade-in">
+          <header>
+            <div>
+              <h5>${order.buyer}</h5>
+              <p>${order.detail}</p>
+            </div>
+          </header>
+          <div class="order-meta">
+            <span>${order.status}</span>
+            <span>Voice-ready</span>
+          </div>
+        </article>
+      `
+    )
+    .join("");
+}
+
+function renderListings() {
+  listingCards.innerHTML = state.listings
+    .map(
+      (item) => `
+        <article class="listing-item marketplace-card fade-in">
+          <header>
+            <div>
+              <h5>${item.title}</h5>
+              <p>${item.subtitle}</p>
+            </div>
+            <span class="mini-pill">${item.tag}</span>
+          </header>
+          ${
+            item.image_data
+              ? `<img class="listing-photo" src="${item.image_data}" alt="${item.title}" />`
+              : `<div class="listing-photo placeholder">Photo-ready listing</div>`
+          }
+          <div class="listing-meta">
+            <span>${item.price}</span>
+            <span>${item.stock}</span>
+            <span>${item.category || "General"}</span>
+          </div>
+          <div class="contact-box">
+            <strong>${item.seller_name || "Seller"}</strong>
+            <span>${item.contact_phone || "+91 98765 43210"}</span>
+          </div>
+          <div class="card-actions">
+            <button class="primary-button buy-button" data-title="${item.title}" type="button">Buy</button>
+            <a class="secondary-button contact-link" href="tel:${(item.contact_phone || "").replace(/\s+/g, "")}">
+              Contact
+            </a>
+          </div>
+        </article>
+      `
+    )
+    .join("");
+
+  listingCards.querySelectorAll(".buy-button").forEach((button) => {
+    button.addEventListener("click", () => {
+      void handleBuy(button.dataset.title || "");
+    });
+  });
+}
+
+function renderBuyerListings() {
+  if (!buyerListingCards) {
+    return;
+  }
+  buyerListingCards.innerHTML = state.listings
+    .map(
+      (item) => `
+        <article class="listing-item buyer-card fade-in">
+          <header>
+            <div>
+              <h5>${item.title}</h5>
+              <p>${item.subtitle}</p>
+            </div>
+            <span class="mini-pill">${item.category || "General"}</span>
+          </header>
+          <div class="listing-meta">
+            <span>${item.price}</span>
+            <span>${item.stock}</span>
+          </div>
+          <div class="contact-box">
+            <strong>${item.seller_name || "Seller"}</strong>
+            <span>${item.contact_phone || "+91 98765 43210"}</span>
+          </div>
+        </article>
+      `
+    )
+    .join("");
 }
 
 function setLanguage(language) {
@@ -261,6 +645,37 @@ async function loadMarketplaceData() {
   state.orders = orderPayload.items;
   renderListings();
   renderOrders();
+  renderBuyerListings();
+}
+
+async function loadProfile() {
+  state.profile = await fetchJson(`/api/profile?role=${state.authRole}`);
+  renderProfile();
+}
+
+async function loadDashboard() {
+  const payload = await fetchJson(`/api/dashboard?role=${state.authRole}`);
+  state.alerts = payload.alerts || [];
+  state.metrics = payload.metrics || null;
+  state.profile = payload.seller || state.profile;
+  renderAlerts();
+  renderMetrics();
+  renderProfile();
+  maybeSpeakAlerts();
+}
+
+function maybeSpeakAlerts() {
+  if (state.isListening || state.isBusy || !state.alerts.length) {
+    return;
+  }
+
+  const freshAlert = state.alerts.find((alert) => !state.alertSpeechHistory.has(alert.id));
+  if (!freshAlert) {
+    return;
+  }
+
+  state.alertSpeechHistory.add(freshAlert.id);
+  void speak(freshAlert.message, getSpeechLanguage());
 }
 
 function chooseRecorderMimeType() {
@@ -336,15 +751,13 @@ async function speak(text, languageCode = getSpeechLanguage()) {
       }
     });
     await audio.play();
-  } catch (error) {
+  } catch (_error) {
     if ("speechSynthesis" in window) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = languageCode;
       utterance.rate = 0.85;
       window.speechSynthesis.speak(utterance);
-    } else {
-      throw error;
     }
   }
 }
@@ -369,12 +782,13 @@ function applyAssistantFields(fields) {
   }
 
   if (fields.price) {
-    const value = String(fields.price).startsWith("₹") ? fields.price : `₹${fields.price}${String(fields.price).includes("/") ? "" : " / kg"}`;
-    productPrice.value = value;
+    const clean = String(fields.price).replace(/[^0-9./ ]/g, "").trim();
+    productPrice.value = clean.startsWith("₹") ? clean : `₹${clean || fields.price} / kg`;
   }
 
   if (fields.stock) {
-    productStock.value = String(fields.stock).includes("kg") ? fields.stock : `${fields.stock} kg`;
+    const stockValue = String(fields.stock);
+    productStock.value = /kg|piece|jar/i.test(stockValue) ? stockValue : `${stockValue} kg`;
   }
 
   if (fields.description) {
@@ -413,6 +827,9 @@ async function runAssistantFlow(transcript, languageCode) {
     generatedCommandText.textContent = result.canonical_command || "GENERAL_HELP";
     assistantReply.textContent = result.assistant_reply;
     applyAssistantFields(result.fields);
+    if (result.intent === "daily_summary") {
+      auditReply.textContent = result.assistant_reply;
+    }
     await speak(result.assistant_reply, result.language_code || getSpeechLanguage());
   } catch (error) {
     generatedCommandText.textContent = "COMMAND_GENERATION_FAILED";
@@ -522,7 +939,7 @@ async function startListening() {
     transcriptText.textContent = "Listening... Speak now.";
     generatedCommandText.textContent = "Waiting for completed transcript...";
     setAssistantState("Listening", true);
-  } catch (error) {
+  } catch (_error) {
     assistantReply.textContent = "Microphone access failed. Please allow mic permission in the browser and try again.";
     setAssistantState("Mic Blocked");
   }
@@ -535,6 +952,11 @@ async function saveListing() {
     price: productPrice.value.trim() || "Price pending",
     stock: productStock.value.trim() || "Stock pending",
     tag: "Just added",
+    category: productCategory.value,
+    seller_name: state.profile?.name || "Rural Seller",
+    contact_phone: contactPhone.value.trim() || state.profile?.phone || "+91 98765 43210",
+    min_stock_alert: Number(minStockAlert.value) || 5,
+    image_data: state.uploadedImageData || "",
   };
 
   assistantReply.textContent = "Saving your listing to the marketplace backend.";
@@ -546,7 +968,7 @@ async function saveListing() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newListing),
     });
-    await loadMarketplaceData();
+    await Promise.all([loadMarketplaceData(), loadDashboard()]);
     assistantReply.textContent = `${newListing.title} has been saved. Your marketplace listing is now live for nearby buyers.`;
     generatedCommandText.textContent = `SAVE_LISTING_TITLE_${newListing.title.replace(/\s+/g, "_").toUpperCase()}`;
     await speak(assistantReply.textContent, getSpeechLanguage());
@@ -557,10 +979,131 @@ async function saveListing() {
   }
 }
 
+async function handleBuy(title) {
+  const listing = state.listings.find((item) => item.title === title);
+  if (!listing) {
+    return;
+  }
+
+  const quantity = Number(window.prompt(`How many units of ${title} do you want to buy?`, "1"));
+  if (!quantity || quantity < 1) {
+    return;
+  }
+
+  const buyerName = window.prompt("Buyer name", "Marketplace Buyer");
+  const buyerPhone = window.prompt("Buyer phone", "+91 ");
+  if (!buyerName || !buyerPhone) {
+    return;
+  }
+
+  setBusy(true);
+  try {
+    const payload = await fetchJson("/api/buy", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        listing_title: title,
+        quantity,
+        buyer_name: buyerName,
+        buyer_phone: buyerPhone,
+      }),
+    });
+    assistantReply.textContent = payload.message;
+    generatedCommandText.textContent = `BUY_LISTING_TITLE_${title.replace(/\s+/g, "_").toUpperCase()}_QTY_${quantity}`;
+    await Promise.all([loadMarketplaceData(), loadDashboard()]);
+    await speak(payload.message, getSpeechLanguage());
+  } catch (error) {
+    assistantReply.textContent = `Purchase failed: ${error.message}`;
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function runAudit(event) {
+  event.preventDefault();
+  const query = auditQuery.value.trim();
+  if (!query) {
+    return;
+  }
+
+  setBusy(true);
+  try {
+    const payload = await fetchJson("/api/audit/query", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        query,
+        language_code: getSpeechLanguage(),
+      }),
+    });
+    auditReply.textContent = payload.reply;
+    generatedCommandText.textContent = "AUDIT_QUERY";
+    assistantReply.textContent = payload.reply;
+    state.metrics = payload.metrics;
+    renderMetrics();
+    await speak(payload.reply, payload.language_code);
+  } catch (error) {
+    auditReply.textContent = `Audit failed: ${error.message}`;
+  } finally {
+    setBusy(false);
+  }
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function handleImageUpload() {
+  const [file] = imageUploadInput.files || [];
+  if (!file) {
+    return;
+  }
+
+  setBusy(true);
+  try {
+    const imageData = await readFileAsDataUrl(file);
+    const payload = await fetchJson("/api/listings/image-preview", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        filename: file.name,
+        image_data: imageData,
+      }),
+    });
+    state.uploadedImageData = payload.image_data;
+    imagePreview.src = payload.image_data;
+    imagePreview.hidden = false;
+    imagePreviewPlaceholder.hidden = true;
+    productName.value = payload.title;
+    productCategory.value = payload.category;
+    productDescription.value = payload.description;
+    imageUploadNote.textContent = payload.voice_prompt;
+    assistantReply.textContent = payload.voice_prompt;
+    await speak(payload.voice_prompt, getSpeechLanguage());
+  } catch (error) {
+    imageUploadNote.textContent = `Image upload failed: ${error.message}`;
+  } finally {
+    setBusy(false);
+  }
+}
+
+function scheduleDashboardPolling() {
+  window.clearInterval(dashboardPollTimer);
+  dashboardPollTimer = window.setInterval(() => {
+    void loadDashboard();
+  }, 20000);
+}
+
 async function boot() {
   try {
     await loadConfig();
-    await loadMarketplaceData();
+    await Promise.all([loadMarketplaceData(), loadProfile(), loadDashboard()]);
+    scheduleDashboardPolling();
   } catch (error) {
     assistantReply.textContent = `Startup failed: ${error.message}`;
   }
@@ -591,11 +1134,18 @@ demoCommandButton.addEventListener("click", async () => {
 });
 
 speakSummaryButton.addEventListener("click", async () => {
-  const content = getContentForLanguage(state.currentLanguage);
-  assistantReply.textContent = content.summary;
+  const payload = await fetchJson("/api/audit/query", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      query: "How much did I sell today?",
+      language_code: getSpeechLanguage(),
+    }),
+  });
+  auditReply.textContent = payload.reply;
   generatedCommandText.textContent = "DAILY_SUMMARY";
-  transcriptText.textContent = content.summary;
-  await speak(content.summary, getSpeechLanguage());
+  transcriptText.textContent = payload.query;
+  await speak(payload.reply, payload.language_code);
 });
 
 languageSelect.addEventListener("change", async () => {
@@ -604,4 +1154,25 @@ languageSelect.addEventListener("change", async () => {
   await speak(content.ready, getSpeechLanguage());
 });
 
+auditForm.addEventListener("submit", (event) => {
+  void runAudit(event);
+});
+
+if (topLoginButton) {
+  topLoginButton.addEventListener("click", () => {
+    handleTopLoginButton();
+  });
+}
+
+if (landingLoginButton) {
+  landingLoginButton.addEventListener("click", () => {
+    window.location.href = "login.html";
+  });
+}
+
+imageUploadInput.addEventListener("change", () => {
+  void handleImageUpload();
+});
+
+initializeAuthState();
 boot();

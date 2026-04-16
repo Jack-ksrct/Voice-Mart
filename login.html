@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Voice Rural | Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Sora:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <script defer src="./login.js"></script>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <nav class="topbar">
+          <div class="brand">
+            <div class="brand-mark">VR</div>
+            <div>
+              <p class="eyebrow">Inclusive Commerce</p>
+              <h1>Voice Rural</h1>
+            </div>
+          </div>
+          <div class="topbar-actions">
+            <button class="secondary-button" type="button" id="backHomeButton">Back to Home</button>
+          </div>
+        </nav>
+
+        <section class="hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow">Login</p>
+            <h2>Choose seller or buyer access</h2>
+            <p class="hero-text">
+              Sign in with phone and password or Google. Buyer and seller sessions are stored locally so your account remains active until you logout.
+            </p>
+          </div>
+          <div class="voice-console">
+            <div class="console-card">
+              <div class="console-header">
+                <div>
+                  <p class="eyebrow">Account type</p>
+                  <h3>Sign in page</h3>
+                </div>
+              </div>
+              <div class="language-banner">
+                <span id="loginModeBadge">Login</span>
+                <p id="loginHint">Switch roles to sign in as seller or buyer.</p>
+              </div>
+              <form class="login-form" id="loginPageForm">
+                <div class="role-tabs">
+                  <button class="auth-role-button active" type="button" data-role="seller">Seller</button>
+                  <button class="auth-role-button" type="button" data-role="buyer">Buyer</button>
+                </div>
+                <div class="auth-tabs">
+                  <button class="auth-method-button active" type="button" data-method="phone">Phone</button>
+                  <button class="auth-method-button" type="button" data-method="google">Google</button>
+                </div>
+                <div class="auth-panel" id="phonePanel">
+                  <label>
+                    Phone number
+                    <input id="loginPhoneInput" type="tel" inputmode="tel" placeholder="+91 98765 43210" />
+                  </label>
+                  <label>
+                    Password
+                    <input id="loginPasswordInput" type="password" placeholder="Enter your password" />
+                  </label>
+                  <div class="form-actions">
+                    <button class="primary-button" id="loginButton" type="button">Login</button>
+                    <span class="otp-status" id="otpStatus">Enter your phone and password to log in.</span>
+                  </div>
+                  <label>
+                    <span id="loginNameHint">Seller name</span>
+                    <input id="loginNameInput" type="text" placeholder="Your name" />
+                  </label>
+                  <label>
+                    Village / area
+                    <input id="loginVillageInput" type="text" placeholder="Nashik Cluster" />
+                  </label>
+                </div>
+                <div class="auth-panel hidden" id="googlePanel">
+                  <button class="google-button" id="googleLoginButton" type="button">
+                    <span class="google-logo" aria-hidden="true">G</span>
+                    Continue with Google
+                  </button>
+                  <p class="auth-note">Use your Google account to sign in quickly and keep your session active.</p>
+                </div>
+              </form>
+              <div class="form-actions auth-helpers">
+                <span class="profile-chip" id="loginSessionSummary">Not signed in</span>
+                <p class="login-tip">Accounts stay active until you logout.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </header>
+    </div>
+  </body>
+</html>

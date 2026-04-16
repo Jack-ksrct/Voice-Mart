@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Voice Rural | Voice-First Marketplace</title>
+    <title>Voice Mart — Voice-First Rural Marketplace</title>
     <meta
       name="description"
-      content="A voice-first marketplace for rural sellers to list, manage, and respond to orders using spoken language."
+      content="Voice Mart helps rural sellers list products, manage inventory, and connect with buyers using their voice — in any Indian language, even offline."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -15,225 +15,240 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./landing.css" />
   </head>
-  <body>
-    <div class="page-shell">
-      <header class="hero">
-        <nav class="topbar">
-          <div class="brand">
-            <div class="brand-mark">VR</div>
-            <div>
-              <p class="eyebrow">Inclusive Commerce</p>
-              <h1>Voice Rural</h1>
+  <body class="landing-body">
+
+    <!-- ═══ NAVBAR ═══ -->
+    <nav class="landing-nav" id="landingNav">
+      <div class="landing-nav-inner">
+        <a class="brand" href="/" aria-label="Voice Mart Home">
+          <div class="brand-mark">VM</div>
+          <div class="brand-text">
+            <span class="brand-eyebrow">Inclusive Commerce</span>
+            <span class="brand-name">Voice Mart</span>
+          </div>
+        </a>
+        <div class="nav-actions">
+          <button class="nav-offline-btn" id="offlineSyncBtn" type="button" aria-label="Offline sync status">
+            <span class="offline-dot" aria-hidden="true"></span>
+            Offline Sync
+          </button>
+          <a class="nav-login-btn" href="./login.html" id="loginNavBtn">Login</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ═══ HERO ═══ -->
+    <header class="landing-hero" id="hero">
+      <div class="hero-bg-orbs" aria-hidden="true">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+      </div>
+      <div class="hero-content">
+        <div class="hero-badge fade-up">
+          <span class="badge-dot" aria-hidden="true"></span>
+          Voice-First · Multi-language · Works Offline
+        </div>
+        <h1 class="hero-headline fade-up delay-1">
+          Run your rural<br />
+          business by <span class="headline-accent">speaking.</span>
+        </h1>
+        <p class="hero-sub fade-up delay-2">
+          List products, update stock, audit sales, and connect with nearby buyers
+          — all using your voice in your own language. No typing needed.
+        </p>
+        <div class="hero-cta fade-up delay-3">
+          <a class="cta-primary" href="./login.html" id="heroLoginBtn">Get Started</a>
+          <button class="cta-secondary" id="heroLearnMoreBtn" type="button">See how it works</button>
+        </div>
+        <div class="hero-langs fade-up delay-4" aria-label="Supported languages">
+          <span>हिन्दी</span><span>தமிழ்</span><span>తెలుగు</span><span>বাংলা</span>
+          <span>ಕನ್ನಡ</span><span>മലയാളം</span><span>ਪੰਜਾਬੀ</span><span>English</span>
+        </div>
+      </div>
+      <div class="hero-visual fade-up delay-2" aria-hidden="true">
+        <div class="phone-mockup">
+          <div class="phone-screen">
+            <div class="mock-topbar">
+              <div class="mock-brand-dot"></div>
+              <span>Voice Mart</span>
+              <div class="mock-chip">Live</div>
+            </div>
+            <div class="mock-mic-area">
+              <div class="mock-mic-ring ring-outer"></div>
+              <div class="mock-mic-ring ring-inner"></div>
+              <div class="mock-mic-btn">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="9" y="2" width="6" height="12" rx="3"/>
+                  <path d="M5 10a7 7 0 0 0 14 0"/>
+                  <line x1="12" y1="19" x2="12" y2="22"/>
+                  <line x1="9" y1="22" x2="15" y2="22"/>
+                </svg>
+              </div>
+            </div>
+            <div class="mock-transcript">
+              <p class="mock-label">You said</p>
+              <p class="mock-text">"20 kilo tamatar, 32 rupees per kilo"</p>
+            </div>
+            <div class="mock-reply">
+              <p class="mock-label">Voice Mart</p>
+              <p class="mock-text">✓ Listed: Fresh Tomatoes · ₹32/kg · 20 kg</p>
             </div>
           </div>
-          <div class="topbar-actions multilingual-controls">
-            <label class="language-picker">
-              <span class="picker-label">Voice Language</span>
-              <select id="languageSelect"></select>
-            </label>
-            <button class="chip" type="button">Offline Sync Ready</button>
-          </div>
-        </nav>
+        </div>
+      </div>
+    </header>
 
-        <section class="hero-grid">
-          <div class="hero-copy">
-            <p class="eyebrow">Voice-Based Marketplace for Rural Sellers</p>
-            <h2>Sell by speaking, not typing.</h2>
-            <p class="hero-text">
-              A voice-first marketplace designed for farmers, artisans, and local
-              vendors who need a simple way to create listings, track orders, and
-              respond to buyers in their own language.
-            </p>
-            <div class="hero-actions">
-              <button class="primary-button" id="startVoiceButton" type="button">
-                Start Voice Listing
-              </button>
-              <button class="secondary-button" id="demoCommandButton" type="button">
-                Play Demo Prompt
-              </button>
-            </div>
-            <div class="hero-metrics">
-              <article>
-                <strong>11</strong>
-                <span>voice-guided steps reduced to 3</span>
-              </article>
-              <article>
-                <strong>10+</strong>
-                <span>Indian language modes in the current build</span>
-              </article>
-              <article>
-                <strong>AI</strong>
-                <span>generated command + spoken response for each request</span>
-              </article>
-            </div>
-          </div>
+    <!-- ═══ HOW IT WORKS ═══ -->
+    <section class="how-section" id="howItWorks">
+      <div class="section-container">
+        <div class="section-label">How It Works</div>
+        <h2 class="section-title">Three steps. Zero typing.</h2>
+        <div class="steps-grid">
+          <article class="step-card fade-up">
+            <div class="step-number">01</div>
+            <div class="step-icon" aria-hidden="true">🎙️</div>
+            <h3>Speak your product</h3>
+            <p>Say the name, price, quantity, and category in your language. Voice Mart understands mixed Indian-English speech.</p>
+          </article>
+          <article class="step-card fade-up delay-1">
+            <div class="step-number">02</div>
+            <div class="step-icon" aria-hidden="true">⚡</div>
+            <h3>Instant listing</h3>
+            <p>Your product is immediately available to nearby buyers on the marketplace. No forms, no typing, no friction.</p>
+          </article>
+          <article class="step-card fade-up delay-2">
+            <div class="step-number">03</div>
+            <div class="step-icon" aria-hidden="true">📊</div>
+            <h3>Voice-powered insights</h3>
+            <p>Ask "How much did I sell today?" and get a spoken summary of your earnings, orders, and stock alerts.</p>
+          </article>
+        </div>
+      </div>
+    </section>
 
-          <div class="voice-console">
-            <div class="console-card">
-              <div class="console-header">
-                <div>
-                  <p class="eyebrow">Voice Assistant</p>
-                  <h3>Seller Command Center</h3>
-                </div>
-                <span class="status-pill" id="assistantState">Ready</span>
-              </div>
+    <!-- ═══ FEATURES ═══ -->
+    <section class="features-section" id="features">
+      <div class="section-container">
+        <div class="section-label">Features</div>
+        <h2 class="section-title">Everything a rural seller needs</h2>
+        <div class="features-grid">
 
-              <div class="language-banner">
-                <span id="languageBadge">English</span>
-                <p id="languageHint">Switch between Indian languages or use auto-detect for STT.</p>
-              </div>
-
-              <div class="mic-orbit" id="micOrbit" aria-hidden="true">
-                <button class="mic-button" id="listenButton" aria-label="Start listening" type="button">
-                  <span id="listenButtonLabel">Tap to Speak</span>
-                </button>
-              </div>
-
-              <div class="transcript-panel">
-                <div>
-                  <p class="panel-label">Live transcript</p>
-                  <p class="transcript" id="transcriptText">
-                    Say: "Add 20 kilos of tomatoes for 32 rupees per kilo"
-                  </p>
-                </div>
-                <div>
-                  <p class="panel-label">Generated command</p>
-                  <p class="generated-command" id="generatedCommandText">
-                    Waiting for a spoken marketplace command.
-                  </p>
-                </div>
-                <div>
-                  <p class="panel-label">Assistant response</p>
-                  <p class="assistant-reply" id="assistantReply">
-                    I can help create listings, update stock, check orders, and
-                    answer buyers using your voice.
-                  </p>
-                </div>
-              </div>
-
-              <div class="suggested-commands" id="suggestedCommands"></div>
-            </div>
-          </div>
-        </section>
-      </header>
-
-      <main>
-        <section class="section-grid">
-          <article class="story-card spotlight">
-            <p class="eyebrow">Why This Matters</p>
-            <h3>Built for real sellers, not just digital users.</h3>
-            <p>
-              Existing marketplaces assume text literacy, stable internet, and app
-              familiarity. Voice Rural replaces forms with guided voice flows,
-              icon-led actions, and spoken confirmations.
-            </p>
-            <div class="feature-list">
-              <span>Voice product listing</span>
-              <span>Low-text navigation</span>
-              <span>Audio order alerts</span>
-              <span>Offline-first sync design</span>
+          <article class="feature-card feature-large fade-up">
+            <div class="feature-icon" aria-hidden="true">🗣️</div>
+            <h3>10+ Indian Languages</h3>
+            <p>Speak in Hindi, Tamil, Telugu, Bengali, Kannada, Malayalam, Punjabi, and more. Switch mid-sentence — Voice Mart keeps up.</p>
+            <div class="feature-lang-pills" aria-label="Supported languages">
+              <span>हिन्दी</span><span>தமிழ்</span><span>తెలుగు</span><span>ਪੰਜਾਬੀ</span>
             </div>
           </article>
 
-          <article class="story-card stack-card">
-            <p class="eyebrow">Solution Stack</p>
-            <h3>Simple enough for a demo, strong enough for scale.</h3>
-            <ul class="stack-list">
-              <li>Sarvam STT with auto-detect or language-specific transcription</li>
-              <li>Sarvam chat generation for unique marketplace commands</li>
-              <li>Sarvam TTS for Indian language audio playback</li>
-              <li>Structured marketplace dashboard for stock and orders</li>
-            </ul>
+          <article class="feature-card fade-up delay-1">
+            <div class="feature-icon" aria-hidden="true">📶</div>
+            <h3>Works Offline</h3>
+            <p>Rural connectivity is unreliable. Voice Mart queues your actions and syncs when you're back online.</p>
           </article>
-        </section>
 
-        <section class="workspace">
-          <div class="section-heading">
-            <div>
-              <p class="eyebrow">Seller Workspace</p>
-              <h3>Manage your business without typing</h3>
+          <article class="feature-card fade-up delay-2">
+            <div class="feature-icon" aria-hidden="true">🛒</div>
+            <h3>Hyperlocal Marketplace</h3>
+            <p>Your listings are shown to buyers nearby. Buyers can browse, contact you, and purchase directly.</p>
+          </article>
+
+          <article class="feature-card fade-up delay-1">
+            <div class="feature-icon" aria-hidden="true">🔔</div>
+            <h3>Smart Stock Alerts</h3>
+            <p>Set a low-stock threshold per product. Voice Mart speaks an alert when you're running low, before you run out.</p>
+          </article>
+
+          <article class="feature-card fade-up delay-2">
+            <div class="feature-icon" aria-hidden="true">📸</div>
+            <h3>Photo + Voice Onboarding</h3>
+            <p>Upload a product photo and Voice Mart AI fills the name, category, and description for you — then you just verify by voice.</p>
+          </article>
+
+          <article class="feature-card feature-large fade-up">
+            <div class="feature-icon" aria-hidden="true">📈</div>
+            <h3>Voice Business Audit</h3>
+            <p>Ask any business question — "What is my total profit this week?" or "Which product sold most?" — and hear a spoken answer in your language.</p>
+            <div class="audit-demo" aria-label="Example audit interaction">
+              <div class="audit-bubble you">"Aaj kitna becha?"</div>
+              <div class="audit-bubble ai">₹2,400 revenue · 18 orders · 3 alerts</div>
             </div>
-            <button class="secondary-button" id="speakSummaryButton" type="button">
-              Speak Today’s Summary
-            </button>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ FOR BUYERS ═══ -->
+    <section class="buyer-section" id="forBuyers">
+      <div class="section-container buyer-inner">
+        <div class="buyer-copy fade-up">
+          <div class="section-label">For Buyers</div>
+          <h2 class="section-title">Find local sellers near you</h2>
+          <p class="buyer-desc">Browse fresh produce, handicrafts, dairy, and home-made foods listed by sellers in your area. See real prices, contact sellers directly, and support local commerce.</p>
+          <a class="cta-primary" href="./login.html">Browse as Buyer</a>
+        </div>
+        <div class="buyer-visual fade-up delay-1">
+          <div class="buyer-card-demo">
+            <div class="demo-card">
+              <div class="demo-card-tag">Vegetables</div>
+              <h4>Fresh Tomatoes</h4>
+              <p>Harvested today · Nashik Cluster</p>
+              <div class="demo-card-meta">
+                <span>₹32 / kg</span>
+                <span>20 kg in stock</span>
+              </div>
+              <div class="demo-card-actions">
+                <button class="demo-btn-buy" type="button">Buy</button>
+                <button class="demo-btn-contact" type="button">Contact</button>
+              </div>
+            </div>
+            <div class="demo-card demo-card-offset">
+              <div class="demo-card-tag">Dairy</div>
+              <h4>Cow Milk</h4>
+              <p>Morning fresh · Pune Village</p>
+              <div class="demo-card-meta">
+                <span>₹55 / litre</span>
+                <span>10 L in stock</span>
+              </div>
+            </div>
           </div>
+        </div>
+      </div>
+    </section>
 
-          <div class="workspace-grid">
-            <article class="dashboard-card listing-form">
-              <div class="card-heading">
-                <div>
-                  <p class="panel-label">Quick Listing</p>
-                  <h4>Voice-filled product form</h4>
-                </div>
-                <span class="status-dot">Auto-Saved</span>
-              </div>
+    <!-- ═══ CTA BAND ═══ -->
+    <section class="cta-band" id="ctaBand">
+      <div class="section-container cta-band-inner">
+        <div class="cta-band-text">
+          <h2>Start selling with your voice today.</h2>
+          <p>Free to use. No smartphone required. Works on any browser.</p>
+        </div>
+        <a class="cta-primary cta-large" href="./login.html" id="ctaBandLogin">Login to Get Started</a>
+      </div>
+    </section>
 
-              <form id="listingForm">
-                <label>
-                  Product Name
-                  <input id="productName" name="productName" type="text" value="Fresh Tomatoes" />
-                </label>
-                <label>
-                  Category
-                  <select id="productCategory" name="productCategory">
-                    <option>Vegetables</option>
-                    <option>Handicrafts</option>
-                    <option>Dairy</option>
-                    <option>Home Foods</option>
-                  </select>
-                </label>
-                <div class="two-column">
-                  <label>
-                    Price
-                    <input id="productPrice" name="productPrice" type="text" value="₹32 / kg" />
-                  </label>
-                  <label>
-                    Stock
-                    <input id="productStock" name="productStock" type="text" value="20 kg" />
-                  </label>
-                </div>
-                <label>
-                  Spoken Description
-                  <textarea id="productDescription" name="productDescription" rows="4">Fresh farm tomatoes harvested today. Ideal for local buyers and kirana shops.</textarea>
-                </label>
-                <div class="form-actions">
-                  <button type="button" class="primary-button" id="saveListingButton">
-                    Save Listing
-                  </button>
-                  <button type="button" class="secondary-button" id="voiceFillButton">
-                    Fill via Voice
-                  </button>
-                </div>
-              </form>
-            </article>
+    <!-- ═══ FOOTER ═══ -->
+    <footer class="landing-footer">
+      <div class="section-container footer-inner">
+        <div class="footer-brand">
+          <div class="brand-mark brand-mark-sm">VM</div>
+          <span>Voice Mart &mdash; Inclusive Commerce</span>
+        </div>
+        <p class="footer-copy">&copy; 2026 Voice Mart. Built for rural India.</p>
+      </div>
+    </footer>
 
-            <article class="dashboard-card">
-              <div class="card-heading">
-                <div>
-                  <p class="panel-label">Active Listings</p>
-                  <h4>Popular products</h4>
-                </div>
-                <span class="mini-pill">3 Live</span>
-              </div>
-              <div class="listing-cards" id="listingCards"></div>
-            </article>
-
-            <article class="dashboard-card">
-              <div class="card-heading">
-                <div>
-                  <p class="panel-label">Buyer Activity</p>
-                  <h4>Pending voice responses</h4>
-                </div>
-                <span class="mini-pill alert">2 New</span>
-              </div>
-              <div class="orders" id="ordersList"></div>
-            </article>
-          </div>
-        </section>
-      </main>
+    <!-- ═══ OFFLINE TOAST ═══ -->
+    <div class="offline-toast hidden" id="offlineToast" role="status" aria-live="polite">
+      <span class="offline-dot" aria-hidden="true"></span>
+      Offline sync is active — your data will sync when online.
     </div>
 
-    <script src="./app.js"></script>
+    <script src="./landing.js"></script>
   </body>
 </html>
